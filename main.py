@@ -5,18 +5,21 @@ import requests
 import csv
 
 def getArticleTitle(soup):
+
     headers = soup.find_all("h1")
-    if len(headers)>0:
-        return soup.find_all("h1")[0].getText()
+    if len(headers)==0:
+        return "Not Found"
     else:
-        return "Article Not Found"
+        return headers[0].getText()
 
 def getArticleData(soup):
     data = soup.findAll("div",{"class":"td-post-content tagdiv-type"})
-    if len(data)>=0:
+    if len(data)>0:
         return data[0].getText()
     else:
-        return "NOT Found"
+        return "Article Not Found"
+
+
 
 
 urlsList = []
@@ -26,16 +29,19 @@ count=1
 # Loading Input URLs
 with open('InputURLSheet.csv', 'r') as input_file:
     input_data = csv.reader(input_file)
-    for line in input_data:
-        urlsList.append(line[1])
+    for row in input_data:
+        print(row)
+        url = row[1]
+        urlsList.append(url)
+
 
 # Removing Excel headers
 urlsList.pop(0)
+#
 
-
-for url in urlsList[14:17]:
+for url in urlsList:
     # Loading web-page
-    webPage=requests.get(url)
+    webPage = requests.get(url)
 
     # Making SOUP of it
     soup = BeautifulSoup(webPage.content,features="html.parser")
@@ -45,10 +51,13 @@ for url in urlsList[14:17]:
     article = getArticleData(soup)
 
     print(count,"=> ",title)
+    count+=1
     if(title=="Not Found"):
-        print(url,title)
-    else:
-        title_article_list.append([title,article])
+        # print(url,title)
+        title = "Not Found"
+        article = "Article not found for  URL : "+ url
+
+    title_article_list.append([title,article])
 
 
 # Writing result to output file
